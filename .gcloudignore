@@ -1,0 +1,26 @@
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+
+# Frontend (deploy separately)
+frontend/
+
+# Docker
+docker-compose.yml
+Dockerfile.dev
