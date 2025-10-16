@@ -1,6 +1,7 @@
-version: '3.8'
+# NOTE: "version" is optional and deprecated, so you can omit it safely
 
 services:
+  # 🗄️ MySQL Database
   mysql:
     image: mysql:8.0
     container_name: elearning_mysql
@@ -10,14 +11,16 @@ services:
       MYSQL_DATABASE: elearning_db
       MYSQL_USER: elearning_user
       MYSQL_PASSWORD: elearning_pass
-    ports:
-      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - elearning_network
+    # Uncomment only if you need to connect externally (e.g. Workbench)
+    ports:
+      - "3306:3306"
 
+  # 🧰 phpMyAdmin for DB Management
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: elearning_phpmyadmin
@@ -34,9 +37,40 @@ services:
     networks:
       - elearning_network
 
+  # ⚙️ Spring Boot Backend
+  backend:
+    build: ./backend
+    container_name: elearning_backend
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/elearning_db
+      SPRING_DATASOURCE_USERNAME: elearning_user
+      SPRING_DATASOURCE_PASSWORD: elearning_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    networks:
+      - elearning_network
+
+  # 💻 React Frontend
+  frontend:
+    build: ./frontend
+    container_name: elearning_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - elearning_network
+
+# Persistent MySQL storage
 volumes:
   mysql_data:
 
+# Shared bridge network
 networks:
   elearning_network:
     driver: bridge
