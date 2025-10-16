@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Service
 public class CourseService {
@@ -88,5 +89,50 @@ public class CourseService {
     
     public long getTotalCourses() {
         return courseRepository.count();
+    }
+    
+    // Admin course approval methods
+    public List<Course> getPendingCourses() {
+        return courseRepository.findByStatus(CourseStatus.PENDING_APPROVAL);
+    }
+    
+    public Course approveCourse(Long courseId, Long adminId, String feedback) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+        
+        course.setStatus(CourseStatus.APPROVED);
+        course.setAdminFeedback(feedback);
+        course.setReviewedBy(adminId);
+        course.setReviewedAt(LocalDateTime.now());
+        
+        return courseRepository.save(course);
+    }
+    
+    public Course rejectCourse(Long courseId, Long adminId, String feedback) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+        
+        course.setStatus(CourseStatus.REJECTED);
+        course.setAdminFeedback(feedback);
+        course.setReviewedBy(adminId);
+        course.setReviewedAt(LocalDateTime.now());
+        
+        return courseRepository.save(course);
+    }
+    
+    public Course submitForApproval(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + courseId));
+        
+        course.setStatus(CourseStatus.PENDING_APPROVAL);
+        return courseRepository.save(course);
+    }
+    
+    public List<Course> getRejectedCourses() {
+        return courseRepository.findByStatus(CourseStatus.REJECTED);
+    }
+    
+    public List<Course> getApprovedCourses() {
+        return courseRepository.findByStatus(CourseStatus.APPROVED);
     }
 }

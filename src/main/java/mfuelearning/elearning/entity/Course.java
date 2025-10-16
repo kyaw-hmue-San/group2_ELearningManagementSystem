@@ -49,6 +49,15 @@ public class Course {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    @Column(columnDefinition = "TEXT")
+    private String adminFeedback;
+    
+    @Column(name = "reviewed_by")
+    private Long reviewedBy; // Admin ID who reviewed
+    
+    @Column(name = "reviewed_at")
+    private LocalDateTime reviewedAt;
+    
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Enrollment> enrollments;
@@ -103,6 +112,15 @@ public class Course {
     
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    
+    public String getAdminFeedback() { return adminFeedback; }
+    public void setAdminFeedback(String adminFeedback) { this.adminFeedback = adminFeedback; }
+    
+    public Long getReviewedBy() { return reviewedBy; }
+    public void setReviewedBy(Long reviewedBy) { this.reviewedBy = reviewedBy; }
+    
+    public LocalDateTime getReviewedAt() { return reviewedAt; }
+    public void setReviewedAt(LocalDateTime reviewedAt) { this.reviewedAt = reviewedAt; }
     
     public List<Enrollment> getEnrollments() { return enrollments; }
     public void setEnrollments(List<Enrollment> enrollments) { this.enrollments = enrollments; }

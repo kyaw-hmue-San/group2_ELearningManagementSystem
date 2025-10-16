@@ -16,15 +16,38 @@ public class DataInitializationService implements CommandLineRunner {
     @Autowired
     private CourseRepository courseRepository;
     
+    @Autowired
+    private AdminRepository adminRepository;
+    
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+    
+    @Autowired
+    private CertificateRepository certificateRepository;
+    
+    @Autowired
+    private SupportRequestRepository supportRequestRepository;
+    
     @Override
     public void run(String... args) throws Exception {
         // Only initialize if database is empty
-        if (userRepository.count() == 0) {
+        if (adminRepository.count() == 0) {
             initializeData();
         }
     }
     
     private void initializeData() {
+        // Create sample admin accounts
+        Admin mainAdmin = new Admin("admin", "admin123", "System Administrator", 
+                                   "admin@elearning.com", "IT Department");
+        
+        Admin techAdmin = new Admin("tech_admin", "tech123", "Technical Administrator", 
+                                   "tech@elearning.com", "Technical Support");
+        
+        // Save admins
+        adminRepository.save(mainAdmin);
+        adminRepository.save(techAdmin);
+        
         // Create sample users
         User admin = new User("admin", "admin@elearning.com", "admin123", 
                              "System", "Administrator", UserRole.ADMIN);
@@ -85,13 +108,79 @@ public class DataInitializationService implements CommandLineRunner {
         course4.setEndDate(LocalDateTime.now().plusDays(120)); // 90 days course
         course4.setStatus(CourseStatus.DRAFT);
         
+        // Create some pending approval courses
+        Course pendingCourse1 = new Course("Advanced JavaScript", 
+                                          "Deep dive into modern JavaScript concepts and frameworks.", 
+                                          instructor1, "CS501", 3);
+        pendingCourse1.setMaxStudents(25);
+        pendingCourse1.setStartDate(LocalDateTime.now().plusDays(14));
+        pendingCourse1.setEndDate(LocalDateTime.now().plusDays(104));
+        pendingCourse1.setStatus(CourseStatus.PENDING_APPROVAL);
+        
+        Course pendingCourse2 = new Course("Machine Learning Basics", 
+                                          "Introduction to machine learning algorithms and applications.", 
+                                          instructor2, "CS601", 4);
+        pendingCourse2.setMaxStudents(30);
+        pendingCourse2.setStartDate(LocalDateTime.now().plusDays(21));
+        pendingCourse2.setEndDate(LocalDateTime.now().plusDays(111));
+        pendingCourse2.setStatus(CourseStatus.PENDING_APPROVAL);
+        
         // Save courses
         courseRepository.save(course1);
         courseRepository.save(course2);
         courseRepository.save(course3);
         courseRepository.save(course4);
+        courseRepository.save(pendingCourse1);
+        courseRepository.save(pendingCourse2);
+        
+        // Create sample enrollments
+        Enrollment enrollment1 = new Enrollment();
+        enrollment1.setStudent(student1);
+        enrollment1.setCourse(course1);
+        enrollment1.setEnrollmentDate(LocalDateTime.now().minusDays(10));
+        enrollment1.setStatus(EnrollmentStatus.ACTIVE);
+        
+        Enrollment enrollment2 = new Enrollment();
+        enrollment2.setStudent(student2);
+        enrollment2.setCourse(course1);
+        enrollment2.setEnrollmentDate(LocalDateTime.now().minusDays(8));
+        enrollment2.setStatus(EnrollmentStatus.COMPLETED);
+        enrollment2.setCompletionDate(LocalDateTime.now().minusDays(1));
+        
+        Enrollment enrollment3 = new Enrollment();
+        enrollment3.setStudent(student3);
+        enrollment3.setCourse(course2);
+        enrollment3.setEnrollmentDate(LocalDateTime.now().minusDays(5));
+        enrollment3.setStatus(EnrollmentStatus.ACTIVE);
+        
+        enrollmentRepository.save(enrollment1);
+        enrollmentRepository.save(enrollment2);
+        enrollmentRepository.save(enrollment3);
+        
+        // Create sample certificates
+        Certificate cert1 = new Certificate(student2, course1, "CERT-" + System.currentTimeMillis() + "-001", "A", 92.5);
+        cert1.setCompletionDate(LocalDateTime.now().minusDays(1));
+        certificateRepository.save(cert1);
+        
+        // Create sample support requests
+        SupportRequest support1 = new SupportRequest(student1, "Cannot access course materials", 
+                                                    "I'm having trouble accessing the video lectures for Java Programming course.", 
+                                                    SupportRequestType.TECHNICAL_ISSUE, SupportRequestPriority.HIGH);
+        
+        SupportRequest support2 = new SupportRequest(student3, "Enrollment issue", 
+                                                    "I want to enroll in the Database course but getting an error.", 
+                                                    SupportRequestType.ENROLLMENT_ISSUE, SupportRequestPriority.MEDIUM);
+        
+        SupportRequest support3 = new SupportRequest(instructor1, "Course approval status", 
+                                                    "When will my Advanced JavaScript course be approved?", 
+                                                    SupportRequestType.COURSE_INQUIRY, SupportRequestPriority.LOW);
+        
+        supportRequestRepository.save(support1);
+        supportRequestRepository.save(support2);
+        supportRequestRepository.save(support3);
         
         System.out.println("✅ Sample data initialized successfully!");
-        System.out.println("📊 Created " + userRepository.count() + " users and " + courseRepository.count() + " courses");
+        System.out.println("📊 Created " + adminRepository.count() + " admins, " + userRepository.count() + " users, " + courseRepository.count() + " courses");
+        System.out.println("📊 Created " + enrollmentRepository.count() + " enrollments, " + certificateRepository.count() + " certificates, " + supportRequestRepository.count() + " support requests");
     }
 }

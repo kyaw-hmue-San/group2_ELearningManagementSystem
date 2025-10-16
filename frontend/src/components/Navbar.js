@@ -31,9 +31,13 @@ function Navbar() {
             </Nav.Link>
           </Nav>
           <Nav>
-            <Nav.Link href="#login">
-              <i className="fas fa-sign-in-alt me-1"></i>
-              Login
+            <Nav.Link as={Link} to="/register">
+              <i className="fas fa-user-plus me-1"></i>
+              Register
+            </Nav.Link>
+            <Nav.Link as={Link} to="/admin/login">
+              <i className="fas fa-shield-alt me-1"></i>
+              Admin
             </Nav.Link>
           </Nav>
         </BootstrapNavbar.Collapse>

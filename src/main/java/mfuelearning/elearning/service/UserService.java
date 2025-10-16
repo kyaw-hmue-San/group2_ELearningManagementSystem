@@ -73,4 +73,9 @@ public class UserService {
     public List<User> getStudents() {
         return userRepository.findByRole(UserRole.STUDENT);
     }
+    
+    // Check if user exists by email
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -83,6 +84,28 @@ public class UserController {
             return ResponseEntity.ok().body("User deleted successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }
+    
+    // User Registration
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        try {
+            // Check if user already exists
+            if (userService.existsByEmail(user.getEmail())) {
+                return ResponseEntity.badRequest().body("Email already exists");
+            }
+            
+            // Create new user
+            User newUser = userService.createUser(user);
+            return ResponseEntity.ok(Map.of(
+                "message", "User registered successfully",
+                "userId", newUser.getId(),
+                "email", newUser.getEmail()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Registration failed: " + e.getMessage());
         }
     }
 }
